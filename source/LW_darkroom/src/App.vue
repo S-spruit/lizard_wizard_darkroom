@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from "vue";
 import { invoke } from "@tauri-apps/api/core";
+import MediaPool from "./components/MediaPool.vue";
 
 const greetMsg = ref("");
 const name = ref("");
@@ -33,6 +34,8 @@ async function greet() {
       <button type="submit">Greet</button>
     </form>
     <p>{{ greetMsg }}</p>
+
+    <MediaPool />
   </main>
 </template>
 
