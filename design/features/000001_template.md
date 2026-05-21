@@ -35,3 +35,7 @@ any notes on implementions
 
 ### future improvements
 suggest future improvements here
+
+### test report
+
+[000001](../test_reports/000001_template.md)
