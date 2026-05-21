@@ -1,7 +1,7 @@
 # Test report 000001
 Created by|feature number|test date|build version|
 ---|---|---|---|
-|S-spruit|[link to feature](../features/000001)|v0.0.1|
+|S-spruit|[link to feature](../features/000001_template.md)|v0.0.1|
 
 ---
 ## test environment
