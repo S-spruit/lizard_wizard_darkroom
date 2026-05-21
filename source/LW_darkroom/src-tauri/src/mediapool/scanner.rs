@@ -3,6 +3,9 @@ use std::path::Path;
 use std::path::PathBuf;
 use std::io::Result;
 use crate::mediapool::asset::Asset;
+use crate::appstate::AppState;
+use std::sync::Mutex;
+use tauri::State;
 
 fn is_raw(path: &Path) -> bool {
     match path.extension().and_then(|e| e.to_str()) {
@@ -15,9 +18,19 @@ fn is_raw(path: &Path) -> bool {
 }
 
 #[tauri::command]
-pub fn scan_and_build(path: String) -> Vec<Asset> {
+pub fn scan_and_build(path: String, state: State<Mutex<AppState>>) {
+    let mut app_state = state.lock().unwrap();
     let paths = scan_folder(path);
-    build_assets(paths)
+    let assets = build_assets(paths);
+
+    app_state.assets.extend(assets)
+}
+
+#[tauri::command]
+pub fn get_assets(state: State<Mutex<AppState>>) -> Vec<Asset> {
+    let app_state = state.lock().unwrap();
+
+    app_state.assets.clone()
 }
 
 

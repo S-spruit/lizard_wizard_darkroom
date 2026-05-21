@@ -1,5 +1,9 @@
 
 pub mod mediapool;
+pub mod appstate;
+use crate::appstate::AppState;
+use std::sync::Mutex;
+
 
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 #[tauri::command]
@@ -12,6 +16,7 @@ use crate::mediapool::scanner::scan_and_build;
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .manage(Mutex::new(AppState::new()))
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_dialog::init())
         .invoke_handler(tauri::generate_handler![greet, scan_and_build])
