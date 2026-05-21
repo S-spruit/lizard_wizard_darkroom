@@ -27,9 +27,9 @@ any notes on implementions
 ---
 
 ### Checklist:
-- [ ] All required features are present
-- [ ] Features have been tested and test report is present.
-- [ ] !! does not crash any modules !!
+- [x] All required features are present
+- [x] Features have been tested and test report is present.
+- [x] !! does not crash any modules !!
 
 ---
 
@@ -38,4 +38,4 @@ suggest future improvements here
 
 ### test report
 
-[000001](../test_reports/000001_template.md)
+[000002](../test_reports/000002_basic_environment.md)
