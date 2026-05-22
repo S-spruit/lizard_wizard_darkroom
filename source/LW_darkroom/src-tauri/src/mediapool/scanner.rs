@@ -22,7 +22,7 @@ pub fn scan_and_build(path: String, state: State<Mutex<AppState>>) {
     let mut app_state = state.lock().unwrap();
     let paths = scan_folder(path);
     let assets = build_assets(paths);
-
+    app_state.assets.clear();
     app_state.assets.extend(assets)
 }
 

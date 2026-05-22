@@ -10,11 +10,12 @@ async function selectFolder(params) {
 
     if (!folder) return;
 
-    const assets = await invoke("scan_and_build", {
+     await invoke("scan_and_build", {
         path: folder,
     });
-    console.log(assets)
     
+    const assets = await invoke("get_assets")
+    console.log(assets)
 }
 </script>
 <template>
