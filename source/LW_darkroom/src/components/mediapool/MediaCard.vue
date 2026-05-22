@@ -1,4 +1,5 @@
 <script setup>
+import { convertFileSrc } from '@tauri-apps/api/core'
 const props = defineProps({
     asset: String,
     name: String,
@@ -26,7 +27,7 @@ const props = defineProps({
 </style>
 <template>
 <div class="mp_media_card">
-    <img :src="path" :alt="name" class="mp_media_image">
+    <img :src="convertFileSrc(thumbnail)" :alt="name" class="mp_media_image">
     <p class="mp_media_title">{{ name }}</p>
 </div>
 </template>

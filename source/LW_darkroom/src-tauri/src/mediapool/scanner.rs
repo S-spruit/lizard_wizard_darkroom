@@ -1,9 +1,9 @@
 use std::fs;
 use std::path::Path;
 use std::path::PathBuf;
-use std::io::Result;
 use crate::mediapool::asset::Asset;
 use crate::appstate::AppState;
+use crate::rawengine::rawdecoder::{extract_thumbnails, get_cache_path};
 use std::sync::Mutex;
 use tauri::State;
 
@@ -62,11 +62,15 @@ use uuid::Uuid;
 fn build_assets(paths: Vec<PathBuf>) -> Vec<Asset> {
     paths
         .into_iter()
-        .map(|path| crate::mediapool::asset::Asset {
+        .map(|path|{
+            let cache_path = get_cache_path(&path);
+
+            let thumbnail_path = extract_thumbnails(&path, &cache_path);
+            crate::mediapool::asset::Asset {
             id: Uuid::new_v4(),
             filename: path.clone().file_name().and_then(|name| name.to_str()).unwrap_or("unknown").to_string(),
             path: path.clone(),
-            thumbnail_path: Some(path.clone())
+            thumbnail_path: thumbnail_path}
         })
         .collect()
 }

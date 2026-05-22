@@ -1,6 +1,7 @@
 
 pub mod mediapool;
 pub mod appstate;
+pub mod rawengine;
 use crate::appstate::AppState;
 use crate::mediapool::scanner::get_assets;
 use std::sync::Mutex;
