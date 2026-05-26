@@ -4,6 +4,7 @@ pub mod appstate;
 pub mod rawengine;
 use crate::appstate::AppState;
 use crate::mediapool::scanner::get_assets;
+use crate::mediapool::asset::{update_asset_rating, update_asset_ready};
 use std::sync::Mutex;
 
 
@@ -21,7 +22,7 @@ pub fn run() {
         .manage(Mutex::new(AppState::new()))
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_dialog::init())
-        .invoke_handler(tauri::generate_handler![greet, scan_and_build, get_assets])
+        .invoke_handler(tauri::generate_handler![greet, scan_and_build, get_assets, update_asset_ready, update_asset_rating])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

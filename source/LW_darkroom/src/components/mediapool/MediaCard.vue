@@ -1,5 +1,6 @@
 <script setup>
 import { convertFileSrc } from '@tauri-apps/api/core'
+import { invoke } from '@tauri-apps/api/core'
 const props = defineProps({
     asset: String,
     name: String,
@@ -9,9 +10,27 @@ const props = defineProps({
 import { ref } from 'vue'
 
 const rating = ref(0)
-function setRating(star) {
+const ready = ref(false)
+async function setRating(star) {
   rating.value = rating.value === star ? 0 : star
+  console.log(rating.value)
+
+  await invoke('update_asset_rating', {
+    id: props.asset,
+    rating: rating.value
+  })
 }
+
+async function toggleReady() {
+  ready.value = !ready.value
+
+  await invoke('update_asset_ready', {
+    id: props.asset,
+    ready: ready.value
+  })
+}
+
+
 </script>
 <style scoped>
     .mp_media_card {
@@ -90,7 +109,7 @@ function setRating(star) {
     <div class="mp_info">
         <span>
             <label for="assetReady">R</label>
-            <input type="checkbox" name="assetReady" id="assetReady">
+            <input type="checkbox" name="assetReady" id="assetReady" @change="toggleReady">
         </span>
         <div class="mp_info_column">
             <div class="rating">

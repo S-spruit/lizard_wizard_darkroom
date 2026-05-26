@@ -1,14 +1,17 @@
 use crate::mediapool::asset::Asset;
 use serde::Serialize;
+use uuid::Uuid;
+use std::collections::HashMap;
+
 #[derive(Clone, Serialize)]
 pub struct AppState {
-    pub assets: Vec<Asset>
+    pub assets: HashMap<Uuid, Asset>
 }
 
 impl AppState {
     pub fn new() -> Self {
         Self {
-            assets: Vec::new()
+            assets: HashMap::new()
         }
     }
 }

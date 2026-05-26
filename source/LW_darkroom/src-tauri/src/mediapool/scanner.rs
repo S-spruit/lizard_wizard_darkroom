@@ -6,6 +6,8 @@ use crate::appstate::AppState;
 use crate::rawengine::rawdecoder::{extract_thumbnails, get_cache_path};
 use std::sync::Mutex;
 use tauri::State;
+use std::collections::HashMap;
+use uuid::Uuid;
 
 fn is_raw(path: &Path) -> bool {
     match path.extension().and_then(|e| e.to_str()) {
@@ -23,11 +25,14 @@ pub fn scan_and_build(path: String, state: State<Mutex<AppState>>) {
     let paths = scan_folder(path);
     let assets = build_assets(paths);
     app_state.assets.clear();
-    app_state.assets.extend(assets)
+    for asset in assets {
+    app_state.assets.insert(asset.id, asset);
+
+    }
 }
 
 #[tauri::command]
-pub fn get_assets(state: State<Mutex<AppState>>) -> Vec<Asset> {
+pub fn get_assets(state: State<Mutex<AppState>>) -> HashMap<Uuid, Asset> {
     let app_state = state.lock().unwrap();
 
     app_state.assets.clone()
@@ -57,7 +62,6 @@ pub fn walk(dir: &Path, results: &mut Vec<PathBuf>) {
     }
 }
 
-use uuid::Uuid;
 
 fn build_assets(paths: Vec<PathBuf>) -> Vec<Asset> {
     paths
@@ -70,7 +74,11 @@ fn build_assets(paths: Vec<PathBuf>) -> Vec<Asset> {
             id: Uuid::new_v4(),
             filename: path.clone().file_name().and_then(|name| name.to_str()).unwrap_or("unknown").to_string(),
             path: path.clone(),
-            thumbnail_path: thumbnail_path}
+            thumbnail_path: thumbnail_path,
+            rating: 0,
+            ready: false
+        
+        }
         })
         .collect()
 }
