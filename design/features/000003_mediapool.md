@@ -29,12 +29,18 @@ pub struct Asset {
     pub thumbnail_path: Option<PathBuf>,
 }
 ```
+features of the browser include:
+- [ ] Loading the images into the appstate
+- [ ] displaying loaded images
+- [ ] add rating
+- [ ] set ready
 there should be a thumbnail cashing service somewhere too.
 
 ---
 
 ### affects modules:
 Which modules affect this feature should be noted here. This helps tracking down where the feature code is located later.
+- rawengine
 
 ---
 
