@@ -22,12 +22,17 @@ fn is_raw(path: &Path) -> bool {
 #[tauri::command]
 pub fn scan_and_build(path: String, state: State<Mutex<AppState>>) {
     let mut app_state = state.lock().unwrap();
+    
     let paths = scan_folder(path);
+    for folderpath in &paths {
+       crate::rawengine::raw::parse_metadata(folderpath); 
+    }
+    
     let assets = build_assets(paths);
     app_state.assets.clear();
     for asset in assets {
     app_state.assets.insert(asset.id, asset);
-
+    
     }
 }
 

@@ -3,9 +3,19 @@ use image::{ImageBuffer, Rgb};
 use rawloader::decode_file;
 use rawloader::RawImageData;
 use std::cmp::max;
+use std::fs::File;
+use std::io::BufReader;
 
 pub fn extract_thumbnails(path: &Path, cache_path: &Path) -> Option<PathBuf> {
-    let img = decode_file(path).ok()?;
+    
+    let img = match decode_file(path) {
+        Ok(raw) => raw,
+        Err(e) => {
+            eprintln!("Rawloader failed for {:?}: {:?}", path, e);
+            return None;
+        }
+    };
+    println!("Detected Make: {}, Model: {}", img.make, img.model);
 
     let width = img.width as usize;
     let height = img.height as usize;
@@ -39,6 +49,7 @@ pub fn extract_thumbnails(path: &Path, cache_path: &Path) -> Option<PathBuf> {
 
     Some(cache_path.to_path_buf())
 }
+
 pub fn get_cache_path(path: &Path) -> PathBuf {
     let file_name = path.file_stem().unwrap().to_string_lossy();
 
@@ -52,6 +63,110 @@ pub fn get_cache_path(path: &Path) -> PathBuf {
 }
 
 pub fn cr2_rgb_guess(data: &[u16], width: usize, height: usize, max_value: f32) -> Vec<u8> {
+    let mut rgb = vec![0u8; width * height * 3];
+    
+    // Canon CR2 Specifics
+    let black_level = 1024.0; 
+    let saturation_level = max_value; // Usually around 13000-15000 for CR2
+    let range = saturation_level - black_level;
+
+    // Standard Canon daylight WB gains (Approximate)
+    let r_gain = 2.0;
+    let g_gain = 1.0;
+    let b_gain = 1.5;
+
+    for y in 0..height as isize {
+        for x in 0..width as isize {
+            let i = (y as usize * width + x as usize) * 3;
+            let val = get(data, x, y, width as isize, height as isize);
+
+            // 1. Identify channel based on RGGB pattern
+            let (mut r, mut g, mut b) = match (x % 2 == 0, y % 2 == 0) {
+                (true, true) => (val, 0.0, 0.0),   // Red pixel
+                (false, false) => (0.0, 0.0, val), // Blue pixel
+                _ => (0.0, val, 0.0),             // Green pixels
+            };
+
+            // Simple Interpolation (Bilinear)
+            if r > 0.0 {
+                g = (get(data, x-1, y, width as isize, height as isize) + get(data, x+1, y, width as isize, height as isize)) * 0.5;
+                b = (get(data, x-1, y-1, width as isize, height as isize) + get(data, x+1, y+1, width as isize, height as isize)) * 0.5;
+            } else if b > 0.0 {
+                g = (get(data, x-1, y, width as isize, height as isize) + get(data, x+1, y, width as isize, height as isize)) * 0.5;
+                r = (get(data, x-1, y-1, width as isize, height as isize) + get(data, x+1, y+1, width as isize, height as isize)) * 0.5;
+            } else {
+                r = (get(data, x-1, y, width as isize, height as isize) + get(data, x+1, y, width as isize, height as isize)) * 0.5;
+                b = (get(data, x, y-1, width as isize, height as isize) + get(data, x, y+1, width as isize, height as isize)) * 0.5;
+            }
+
+            // Processing Pipeline: Subtract Black -> Gain -> Normalize -> Gamma
+            let mut process = |v: f32, gain: f32| {
+                let v = ((v - black_level) / range).max(0.0) * gain;
+                // Apply Gamma 2.2
+                (v.powf(1.0 / 2.2) * 255.0).clamp(0.0, 255.0) as u8
+            };
+
+            rgb[i]     = process(r, r_gain);
+            rgb[i + 1] = process(g, g_gain);
+            rgb[i + 2] = process(b, b_gain);
+        }
+    }
+    rgb
+}
+
+pub fn nef_rgb_guess(data: &[u16], width: usize, height: usize, max_value: f32) -> Vec<u8> {
+    let mut rgb = vec![0u8; width * height * 3];
+    
+    // Canon CR2 Specifics
+    let black_level = 1024.0; 
+    let saturation_level = max_value; // Usually around 13000-15000 for CR2
+    let range = saturation_level - black_level;
+
+    // Standard Canon daylight WB gains (Approximate)
+    let r_gain = 2.0;
+    let g_gain = 1.0;
+    let b_gain = 1.5;
+
+    for y in 0..height as isize {
+        for x in 0..width as isize {
+            let i = (y as usize * width + x as usize) * 3;
+            let val = get(data, x, y, width as isize, height as isize);
+
+            // 1. Identify channel based on RGGB pattern
+            let (mut r, mut g, mut b) = match (x % 2 == 0, y % 2 == 0) {
+                (true, true) => (val, 0.0, 0.0),   // Red pixel
+                (false, false) => (0.0, 0.0, val), // Blue pixel
+                _ => (0.0, val, 0.0),             // Green pixels
+            };
+
+            // Simple Interpolation (Bilinear)
+            if r > 0.0 {
+                g = (get(data, x-1, y, width as isize, height as isize) + get(data, x+1, y, width as isize, height as isize)) * 0.5;
+                b = (get(data, x-1, y-1, width as isize, height as isize) + get(data, x+1, y+1, width as isize, height as isize)) * 0.5;
+            } else if b > 0.0 {
+                g = (get(data, x-1, y, width as isize, height as isize) + get(data, x+1, y, width as isize, height as isize)) * 0.5;
+                r = (get(data, x-1, y-1, width as isize, height as isize) + get(data, x+1, y+1, width as isize, height as isize)) * 0.5;
+            } else {
+                r = (get(data, x-1, y, width as isize, height as isize) + get(data, x+1, y, width as isize, height as isize)) * 0.5;
+                b = (get(data, x, y-1, width as isize, height as isize) + get(data, x, y+1, width as isize, height as isize)) * 0.5;
+            }
+
+            // Processing Pipeline: Subtract Black -> Gain -> Normalize -> Gamma
+            let mut process = |v: f32, gain: f32| {
+                let v = ((v - black_level) / range).max(0.0) * gain;
+                // Apply Gamma 2.2
+                (v.powf(1.0 / 2.2) * 255.0).clamp(0.0, 255.0) as u8
+            };
+
+            rgb[i]     = process(r, r_gain);
+            rgb[i + 1] = process(g, g_gain);
+            rgb[i + 2] = process(b, b_gain);
+        }
+    }
+    rgb
+}
+
+pub fn fuji_rgb_guess(data: &[u16], width: usize, height: usize, max_value: f32) -> Vec<u8> {
     let mut rgb = vec![0u8; width * height * 3];
     
     // Canon CR2 Specifics
