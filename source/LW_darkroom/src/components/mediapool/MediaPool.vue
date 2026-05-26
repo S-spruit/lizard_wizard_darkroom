@@ -40,9 +40,10 @@ async function selectFolder(params) {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
     height: calc(100vh - 100px); /* adjust for toolbar/header */
-    gap: 12px;
+    gap: 5px;
     overflow-y: scroll;
     align-content: start;
+    background-color: #222428;
 }
 .folder_icon {
     width: 24px;
@@ -50,7 +51,8 @@ async function selectFolder(params) {
     fill: #838383;
 }
 .mp_control {
-    background-color: #111827;
+    background-color: #b07a43;
+    /* c28b52, b07a43 d0a060 */ 
 }
 
 .mp_control > button {
@@ -66,7 +68,7 @@ span {
     height: 12px;
     margin: 5px;
     border: 2px solid #83838333;
-    border-top-color: #838383;
+    border-top-color: #222428;
     border-radius: 50%;
     animation: spin 0.8s linear infinite;
 }

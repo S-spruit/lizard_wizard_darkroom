@@ -17,7 +17,7 @@ pub fn extract_thumbnails(path: &Path, cache_path: &Path) -> Option<PathBuf> {
     let max_value = *data.iter().max()? as f32;
 
     // let mut rgb = Vec::with_capacity((width * height * 3) as usize);
-    let rgb = rgb_guess(&data,width,height,max_value);
+    let rgb = cr2_rgb_guess(&data,width,height,max_value);
 
     
 
@@ -51,7 +51,7 @@ pub fn get_cache_path(path: &Path) -> PathBuf {
     cache
 }
 
-pub fn rgb_guess(data: &[u16], width: usize, height: usize, max_value: f32) -> Vec<u8> {
+pub fn cr2_rgb_guess(data: &[u16], width: usize, height: usize, max_value: f32) -> Vec<u8> {
     let mut rgb = vec![0u8; width * height * 3];
     
     // Canon CR2 Specifics

@@ -1,0 +1,91 @@
+:root {
+    font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    line-height: 24px;
+    font-weight: 400;
+
+    color: #e4e4e4;
+    background-color: #1a1b1e;
+
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-text-size-adjust: 100%;
+
+}
+
+/* accent colors; b07a43, c28b52,  d0a060 
+    background colors: 1a1b1e
+    panel colors: 222428
+    text colors: e4e4e4, a8adb3
+    */
+body {
+    margin: 0px;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        color: #e4e4e4;
+        background-color: #1a1b1e;
+    }
+}
+
+
+button {
+    cursor: pointer;
+}
+
+.row {
+    display: flex;
+    flex-direction: row;
+}
+
+input[type="checkbox"] {
+    appearance: none !important;
+    width: 10px;
+    height: 10px;
+    border: solid 1px #1a1b1e !important;
+    background-color: #222428 !important;
+    cursor: pointer;
+    border-radius: 2px;
+}
+
+input[type="checkbox"]:not(:disabled):checked {
+    border: solid 1px #1a1b1e !important;
+    background-color: #222428 !important;
+}
+input[type="checkbox"]:checked::after {
+    content: "✓";
+
+    color: white;
+
+    font-size: xx-small;
+    font-weight: bold;
+    position: relative;
+    top: -5px;
+    left: 1px;
+}
+input[type="button"] {
+    appearance: none !important;
+}
+/* scrollbar edits */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #838383;
+    border-radius: 6px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: #a0a0a0;
+}
